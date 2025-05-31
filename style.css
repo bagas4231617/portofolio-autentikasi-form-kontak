@@ -1,192 +1,255 @@
-/* Custom Animations */
-.animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.6s cubic-bezier(0.25, 0.1, 0.25, 1),
-        transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+/* Base styles and animations */
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #7c3aed;
+  --text-color: #1f2937;
+  --bg-color: #ffffff;
+  --accent-color: #3b82f6;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.animate-on-scroll.animated {
-    opacity: 1;
-    transform: translateY(0);
+.dark {
+  --text-color: #f3f4f6;
+  --bg-color: #111827;
 }
 
-/* Project card hover effect */
-.project-card {
-    transition: all 0.3s ease;
-    transform: scale(0.98);
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
 }
 
-.project-card.animated {
-    transform: scale(1);
+/* Modern animations */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s var(--transition-timing),
+              transform 0.6s var(--transition-timing);
 }
 
-.project-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* Navbar animation */
-.nav-link {
-    position: relative;
-    padding: 8px 0;
+/* Enhanced hover effects */
+.hover-lift {
+  transition: transform 0.3s var(--transition-timing);
 }
 
-.nav-link::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #3b82f6;
-    transition: width 0.3s ease;
+.hover-lift:hover {
+  transform: translateY(-5px);
 }
 
-.nav-link:hover::after {
-    width: 100%;
-}
-
-.nav-link.active-nav::after {
-    width: 100%;
-}
-
-/* Skill bar animations */
-.skill-container {
-    position: relative;
-}
-
+/* Skill bars animation */
 .skill-bar {
-    height: 8px;
-    background-color: #e5e7eb;
-    border-radius: 9999px;
-    overflow: hidden;
-    position: relative;
-}
-
-.dark .skill-bar {
-    background-color: #374151;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
 }
 
 .skill-progress {
-    height: 100%;
-    width: 0;
-    background-color: #3b82f6;
-    border-radius: 9999px;
-    transition: width 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 999px;
+  transition: width 1.5s var(--transition-timing);
 }
 
-/* Floating action button */
-.fab-top {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #3b82f6;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-        0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s ease;
-    z-index: 40;
+/* Card effects */
+.card {
+  background: var(--bg-color);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s var(--transition-timing),
+              box-shadow 0.3s var(--transition-timing);
 }
 
-.fab-top.visible {
-    opacity: 1;
-    transform: translateY(0);
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+              0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-.fab-top:hover {
-    background-color: #2563eb;
-    transform: translateY(-3px);
+/* Button animations */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s var(--transition-timing);
 }
 
-/* Form submission feedback */
-.form-message {
-    display: none;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
+.btn::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all 0.5s var(--transition-timing);
 }
 
-.form-message.success {
-    display: block;
-    background-color: #d1fae5;
-    color: #065f46;
+.btn:hover::after {
+  left: 100%;
 }
 
-.dark .form-message.success {
-    background-color: #064e3b;
-    color: #6ee7b7;
+/* Navigation highlight */
+.nav-link {
+  position: relative;
 }
 
-.form-message.error {
-    display: block;
-    background-color: #fee2e2;
-    color: #b91c1c;
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: var(--primary-color);
+  transition: width 0.3s var(--transition-timing);
 }
 
-.dark .form-message.error {
-    background-color: #7f1d1d;
-    color: #fca5a5;
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+  background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #3b82f6;
-    border-radius: 4px;
+  background: var(--primary-color);
+  border-radius: 5px;
 }
 
-.dark ::-webkit-scrollbar-track {
-    background: #1f2937;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
 }
 
-.dark ::-webkit-scrollbar-thumb {
-    background: #2563eb;
+/* Loading animation */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-.hidden-project {
-    display: none;
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-/* Job title transition */
-#jobTitle {
-    transition: opacity 0.3s ease-in-out;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Modal Styling */
-.auth-card {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    max-width: 400px;
-    animation: modalEnter 0.3s ease;
-    position: relative;
+/* Portfolio filter animation */
+.portfolio-item {
+  transition: all 0.5s var(--transition-timing);
 }
 
-@keyframes modalEnter {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+.portfolio-item.hidden {
+  opacity: 0;
+  transform: scale(0.8);
 }
 
-.modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    cursor: pointer;
+/* Contact form animation */
+.form-control {
+  transition: border-color 0.3s var(--transition-timing),
+              box-shadow 0.3s var(--transition-timing);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Success message animation */
+.success-message {
+  animation: slideIn 0.5s var(--transition-timing);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error message shake animation */
+.error-message {
+  animation: shake 0.5s var(--transition-timing);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Modal animations */
+.modal {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s var(--transition-timing);
+}
+
+.modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  transform: scale(0.7);
+  transition: all 0.3s var(--transition-timing);
+}
+
+.modal.active .modal-content {
+  transform: scale(1);
+}
+
+/* Responsive design helpers */
+@media (max-width: 768px) {
+  .card {
+    padding: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Dark mode transitions */
+.dark-mode-transition {
+  transition: background-color 0.3s var(--transition-timing),
+              color 0.3s var(--transition-timing);
 }

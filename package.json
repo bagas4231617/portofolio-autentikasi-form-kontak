@@ -1,7 +1,7 @@
 {
-  "name": "modern-auth-system",
+  "name": "modern-portfolio",
   "version": "1.0.0",
-  "description": "Modern authentication system with social login",
+  "description": "Modern professional portfolio website",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -11,9 +11,17 @@
   "dependencies": {
     "firebase": "^10.7.1",
     "@firebase/auth": "^1.5.1",
-    "react-firebase-hooks": "^5.1.1"
+    "react-firebase-hooks": "^5.1.1",
+    "aos": "^2.3.4",
+    "swiper": "^11.0.5",
+    "gsap": "^3.12.4",
+    "vanilla-tilt": "^1.8.1",
+    "lightgallery": "^2.7.2"
   },
   "devDependencies": {
-    "vite": "^5.0.10"
+    "vite": "^5.0.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0"
   }
 }
