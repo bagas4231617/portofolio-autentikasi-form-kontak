@@ -6,6 +6,7 @@
     <title>SecureAuth | Professional Authentication System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
     <style>
         .auth-container {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -425,7 +426,7 @@
         }
 
         // Login form submission
-        loginFormSubmit.addEventListener('submit', (e) => {
+        loginFormSubmit.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearMessages();
 
@@ -434,13 +435,13 @@
 
             // Validate inputs
             if (!validateEmail(email)) {
-                loginError.textContent = 'masukin emailnya yang bener lah';
+                loginError.textContent = 'Please enter a valid email address';
                 loginError.classList.remove('hidden');
                 return;
             }
 
             if (!validatePassword(password)) {
-                loginError.textContent = 'password salah, BOSS!';
+                loginError.textContent = 'Password must be at least 8 characters';
                 loginError.classList.remove('hidden');
                 return;
             }
@@ -449,19 +450,21 @@
             const user = userDatabase.find((u) => u.email === email);
 
             if (!user) {
-                loginError.textContent = 'email gak terdaftar, bikin dulu lah!';
+                loginError.textContent = 'No account found with this email';
                 loginError.classList.remove('hidden');
                 return;
             }
 
-            if (user.password !== password) {
-                loginError.textContent = 'password lu salah, masa bisa lupa?';
+            // Compare password with hashed password
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                loginError.textContent = 'Incorrect password';
                 loginError.classList.remove('hidden');
                 return;
             }
 
             // Successful login
-            loginSuccess.textContent = `Welcome back, ${user.firstName}! sabarr brooo...`;
+            loginSuccess.textContent = `Welcome back, ${user.firstName}! Redirecting...`;
             loginSuccess.classList.remove('hidden');
             loginSuccess.classList.add('success-message');
 
@@ -475,7 +478,7 @@
         });
 
         // Register form submission
-        registerFormSubmit.addEventListener('submit', (e) => {
+        registerFormSubmit.addEventListener('submit', async (e) => {
             e.preventDefault();
             clearMessages();
 
@@ -488,31 +491,31 @@
 
             // Validate inputs
             if (!firstName || !lastName) {
-                registerError.textContent = 'masukin nama depan sama nama belakangnya lahh';
+                registerError.textContent = 'Please enter your full name';
                 registerError.classList.remove('hidden');
                 return;
             }
 
             if (!validateEmail(email)) {
-                registerError.textContent = 'masukin emailnya yang bener lahh';
+                registerError.textContent = 'Please enter a valid email address';
                 registerError.classList.remove('hidden');
                 return;
             }
 
             if (!validatePassword(password)) {
-                registerError.textContent = 'password minimal 8 karakter, bos!';
+                registerError.textContent = 'Password must be at least 8 characters';
                 registerError.classList.remove('hidden');
                 return;
             }
 
             if (password !== confirmPassword) {
-                registerError.textContent = 'pw lu salah kocak';
+                registerError.textContent = 'Passwords do not match';
                 registerError.classList.remove('hidden');
                 return;
             }
 
             if (!terms) {
-                registerError.textContent = 'centang dulu syarat sama ketentuan nya';
+                registerError.textContent = 'You must agree to the terms and conditions';
                 registerError.classList.remove('hidden');
                 return;
             }
@@ -521,17 +524,20 @@
             const userExists = userDatabase.some((u) => u.email === email);
 
             if (userExists) {
-                registerError.textContent = 'email sudah terdaftar!!';
+                registerError.textContent = 'An account with this email already exists';
                 registerError.classList.remove('hidden');
                 return;
             }
+
+            // Hash password before saving
+            const hashedPassword = await bcrypt.hash(password, 10);
 
             // Create new user
             const newUser = {
                 firstName,
                 lastName,
                 email,
-                password,
+                password: hashedPassword,
             };
 
             // Add to simulated database
@@ -539,7 +545,7 @@
             localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
 
             // Successful registration
-            registerSuccess.textContent = 'Akun berhasil dibuat!';
+            registerSuccess.textContent = 'Account created successfully! Redirecting to login...';
             registerSuccess.classList.remove('hidden');
             registerSuccess.classList.add('success-message');
 
@@ -555,7 +561,7 @@
 
                 // Auto-fill login form
                 document.getElementById('login-email').value = email;
-                document.getElementById('login-password').value = password;
+                document.getElementById('login-password').value = '';
             }, 2000);
         });
     </script>

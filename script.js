@@ -177,46 +177,58 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Contact form submission
 const contactForm = document.getElementById('contact-form');
 const formMessage = document.getElementById('form-message');
 
 contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formData = new FormData(contactForm);
-    const submitButton = contactForm.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
+  const formData = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    subject: document.getElementById('subject').value,
+    message: document.getElementById('message').value
+  };
 
-    try {
-        // Show loading state
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Sending...';
+  const submitButton = contactForm.querySelector('button[type="submit"]');
+  const originalButtonText = submitButton.innerHTML;
 
-        // Simulate form submission (replace with actual form submission)
-        await new Promise(resolve => setTimeout(resolve, 1000));
+  try {
+    // Tampilkan loading
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Mengirim...';
 
-        // Show success message
-        formMessage.textContent = 'Message sent successfully! I will get back to you soon.';
-        formMessage.className = 'form-message success';
+    // Kirim ke Google Apps Script
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzoJM8fAzq0JJSfpjzFiDaqXvNWov2Ybt-DPnjzTHH_W3oT3eXfD133CoKbSHeNJ389/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    });
 
-        // Reset form
-        contactForm.reset();
-    } catch (error) {
-        console.error('Error:', error);
-        formMessage.textContent = 'Failed to send message. Please try again later.';
-        formMessage.className = 'form-message error';
-    } finally {
-        // Reset button state
-        submitButton.disabled = false;
-        submitButton.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Send Message';
+    const result = await response.json();
 
-        // Hide message after 5 seconds
-        setTimeout(() => {
-            formMessage.textContent = '';
-            formMessage.className = 'form-message';
-        }, 5000);
+    if (result.status === "success") {
+      formMessage.textContent = 'Pesan terkirim! Saya akan segera membalas.';
+      formMessage.className = 'form-message success';
+      contactForm.reset();
+    } else {
+      throw new Error(result.message);
     }
+
+  } catch (error) {
+    formMessage.textContent = `Gagal mengirim: ${error.message}`;
+    formMessage.className = 'form-message error';
+  } finally {
+    submitButton.disabled = false;
+    submitButton.innerHTML = originalButtonText;
+    
+    setTimeout(() => {
+      formMessage.textContent = '';
+      formMessage.className = 'form-message';
+    }, 5000);
+  }
 });
 
 // View All Projects toggle functionality
@@ -261,3 +273,79 @@ function rotateJobTitle() {
 setInterval(rotateJobTitle, 1300);
 
 jobTitleElement.style.transition = 'opacity 0.3s ease-in-out';
+
+document.querySelectorAll('#show-login').forEach(el => {
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('login-modal').classList.remove('hidden');
+        document.getElementById('register-modal').classList.add('hidden');
+    });
+});
+
+document.querySelectorAll('#show-register').forEach(el => {
+    el.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('register-modal').classList.remove('hidden');
+        document.getElementById('login-modal').classList.add('hidden');
+    });
+});
+
+// Close modals when clicking outside the modal content
+document.querySelectorAll('#login-modal, #register-modal').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+});
+
+// Close modals
+function closeModal() {
+    document.getElementById('login-modal').classList.add('hidden');
+    document.getElementById('register-modal').classList.add('hidden');
+}
+
+// Handle UI update on auth success
+function handleAuthSuccess() {
+    closeModal();
+    const authNav = document.querySelector('#auth-nav');
+    if (authNav) {
+        authNav.remove();
+    }
+    const nav = document.querySelector('nav .flex.items-center.space-x-4');
+    if (nav) {
+        const logoutBtn = document.createElement('button');
+        logoutBtn.textContent = 'Logout';
+        logoutBtn.className = 'text-indigo-600 hover:text-indigo-800 font-medium';
+        logoutBtn.style.cursor = 'pointer';
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('loggedInUser');
+            window.location.reload();
+        });
+        nav.appendChild(logoutBtn);
+    }
+}
+
+// Update login form submission to call handleAuthSuccess on success
+const loginFormSubmit = document.getElementById('loginForm');
+if (loginFormSubmit) {
+    loginFormSubmit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Existing login validation and logic here...
+        // For demonstration, assuming login success:
+        // TODO: Integrate actual login logic or call handleAuthSuccess after success
+        handleAuthSuccess();
+    });
+}
+
+// Update register form submission to call handleAuthSuccess on success
+const registerFormSubmit = document.getElementById('registerForm');
+if (registerFormSubmit) {
+    registerFormSubmit.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Existing register validation and logic here...
+        // For demonstration, assuming register success:
+        // TODO: Integrate actual register logic or call handleAuthSuccess after success
+        handleAuthSuccess();
+    });
+};
