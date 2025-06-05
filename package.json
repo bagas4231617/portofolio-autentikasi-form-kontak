@@ -16,7 +16,9 @@
     "swiper": "^11.0.5",
     "gsap": "^3.12.4",
     "vanilla-tilt": "^1.8.1",
-    "lightgallery": "^2.7.2"
+    "lightgallery": "^2.7.2",
+    "@popperjs/core": "^2.11.8",
+    "animate.css": "^4.1.1"
   },
   "devDependencies": {
     "vite": "^5.0.10",
