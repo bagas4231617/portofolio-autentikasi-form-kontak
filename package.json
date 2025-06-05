@@ -18,7 +18,8 @@
     "vanilla-tilt": "^1.8.1",
     "lightgallery": "^2.7.2",
     "@popperjs/core": "^2.11.8",
-    "animate.css": "^4.1.1"
+    "animate.css": "^4.1.1",
+    "framer-motion": "^10.16.16"
   },
   "devDependencies": {
     "vite": "^5.0.10",

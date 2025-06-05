@@ -1,568 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SecureAuth | Professional Authentication System</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Professional Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
-        .auth-container {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #7e22ce 100%);
             min-height: 100vh;
         }
         .auth-card {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-                0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s ease;
         }
         .auth-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
         .input-field {
             transition: all 0.3s ease;
         }
         .input-field:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.2);
         }
-        .toggle-password {
-            cursor: pointer;
+        .social-btn {
             transition: all 0.3s ease;
         }
-        .toggle-password:hover {
-            color: #6366f1;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-            transform: translateY(-2px);
-        }
-        .btn-secondary {
-            transition: all 0.3s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #e5e7eb;
-        }
-        .error-message {
-            animation: shake 0.5s;
-        }
-        @keyframes shake {
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-            10%,
-            30%,
-            50%,
-            70%,
-            90% {
-                transform: translateX(-5px);
-            }
-            20%,
-            40%,
-            60%,
-            80% {
-                transform: translateX(5px);
-            }
-        }
-        .success-message {
-            animation: fadeIn 0.5s;
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .social-btn:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
-<body class="auth-container flex items-center justify-center p-4">
+<body class="flex items-center justify-center p-4">
+    <!-- Loading Spinner -->
+    <div id="loading" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-4 border-white border-t-amber-500"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast" class="fixed top-4 right-4 z-50 animate__animated hidden"></div>
+
     <div class="w-full max-w-md">
-        <!-- Login Form (Default) -->
-        <div id="login-form" class="auth-card bg-white rounded-xl p-8">
-            <div class="flex justify-center mb-6">
-                <div class="bg-indigo-100 p-3 rounded-full">
-                    <i class="fas fa-lock text-indigo-600 text-3xl"></i>
-                </div>
-            </div>
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-1">Welcome Back</h2>
-            <p class="text-center text-gray-600 mb-6">Sign in to your account</p>
-
-            <div id="login-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
-            <div id="login-success" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"></div>
-
-            <form id="loginForm">
-                <div class="mb-4">
-                    <label for="login-email" class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
-                    <div class="relative">
-                        <input
-                            type="email"
-                            id="login-email"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="you@example.com"
-                            required
-                        />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <i class="fas fa-envelope text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label for="login-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                    <div class="relative">
-                        <input
-                            type="password"
-                            id="login-password"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="••••••••"
-                            required
-                        />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                            <i
-                                class="toggle-password fas fa-eye text-gray-400"
-                                onclick="togglePassword('login-password', this)"
-                            ></i>
-                        </div>
-                    </div>
-                    <div class="flex justify-end mt-2">
-                        <a href="#" class="text-sm text-indigo-600 hover:text-indigo-800">Forgot password?</a>
-                    </div>
-                </div>
-
-                <button
-                    type="submit"
-                    class="btn-primary w-full text-white py-2 px-4 rounded-lg font-medium mb-4"
-                >
-                    Sign In
-                </button>
-
+        <div class="auth-card rounded-2xl p-8 animate__animated animate__fadeIn">
+            <!-- Login Form -->
+            <div id="loginForm" class="space-y-6">
                 <div class="text-center">
-                    <p class="text-gray-600 text-sm">
-                        Don't have an account?
-                        <a href="#" id="show-register" class="text-indigo-600 font-medium hover:text-indigo-800">Sign up</a>
-                    </p>
+                    <h2 class="text-3xl font-bold font-poppins text-gray-800">Welcome Back</h2>
+                    <p class="text-gray-600 mt-2">Sign in to continue to portfolio</p>
                 </div>
 
-                <div class="flex items-center my-6">
-                    <div class="border-t border-gray-300 flex-grow"></div>
-                    <span class="px-3 text-gray-500 text-sm">OR</span>
-                    <div class="border-t border-gray-300 flex-grow"></div>
+                <form class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <div class="relative">
+                            <input type="email" id="loginEmail" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="you@example.com" required>
+                            <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="loginPassword" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="••••••••" required>
+                            <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="form-checkbox text-amber-500">
+                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-amber-600 hover:text-amber-700">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg font-medium hover:scale-105 transition-transform">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                    </div>
                 </div>
 
-                <div class="flex justify-center space-x-4">
-                    <button
-                        type="button"
-                        class="btn-secondary flex items-center justify-center w-12 h-12 rounded-full border border-gray-300"
-                    >
-                        <i class="fab fa-google text-red-500"></i>
+                <div class="grid grid-cols-3 gap-4">
+                    <button class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                     </button>
-                    <button
-                        type="button"
-                        class="btn-secondary flex items-center justify-center w-12 h-12 rounded-full border border-gray-300"
-                    >
-                        <i class="fab fa-facebook-f text-blue-600"></i>
+                    <button class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <i class="fab fa-facebook text-blue-600 text-xl"></i>
                     </button>
-                    <button
-                        type="button"
-                        class="btn-secondary flex items-center justify-center w-12 h-12 rounded-full border border-gray-300"
-                    >
-                        <i class="fab fa-twitter text-blue-400"></i>
+                    <button class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        <i class="fab fa-twitter text-blue-400 text-xl"></i>
                     </button>
                 </div>
-            </form>
-        </div>
 
-        <!-- Register Form (Hidden by default) -->
-        <div id="register-form" class="auth-card bg-white rounded-xl p-8 hidden">
-            <div class="flex justify-center mb-6">
-                <div class="bg-indigo-100 p-3 rounded-full">
-                    <i class="fas fa-user-plus text-indigo-600 text-3xl"></i>
-                </div>
+                <p class="text-center text-sm text-gray-600">
+                    Don't have an account? 
+                    <a href="#" id="showSignup" class="text-amber-600 hover:text-amber-700 font-medium">Sign up</a>
+                </p>
             </div>
-            <h2 class="text-2xl font-bold text-center text-gray-800 mb-1">Create Account</h2>
-            <p class="text-center text-gray-600 mb-6">Join us today for great experience</p>
 
-            <div id="register-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
-            <div id="register-success" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"></div>
-
-            <form id="registerForm">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label for="first-name" class="block text-gray-700 text-sm font-medium mb-2">First Name</label>
-                        <input
-                            type="text"
-                            id="first-name"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="John"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label for="last-name" class="block text-gray-700 text-sm font-medium mb-2">Last Name</label>
-                        <input
-                            type="text"
-                            id="last-name"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="Doe"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="register-email" class="block text-gray-700 text-sm font-medium mb-2">Email Address</label>
-                    <div class="relative">
-                        <input
-                            type="email"
-                            id="register-email"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="you@example.com"
-                            required
-                        />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <i class="fas fa-envelope text-gray-400"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="register-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                    <div class="relative">
-                        <input
-                            type="password"
-                            id="register-password"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="••••••••"
-                            required
-                        />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                            <i
-                                class="toggle-password fas fa-eye text-gray-400"
-                                onclick="togglePassword('register-password', this)"
-                            ></i>
-                        </div>
-                    </div>
-                    <div class="text-xs text-gray-500 mt-1">
-                        <p id="password-strength" class="hidden">
-                            <span id="strength-text"></span>
-                            <span id="strength-meter" class="ml-1"></span>
-                        </p>
-                        <p>Use 8 or more characters with a mix of letters, numbers &amp; symbols</p>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label for="confirm-password" class="block text-gray-700 text-sm font-medium mb-2">Confirm Password</label>
-                    <div class="relative">
-                        <input
-                            type="password"
-                            id="confirm-password"
-                            class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                            placeholder="••••••••"
-                            required
-                        />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                            <i
-                                class="toggle-password fas fa-eye text-gray-400"
-                                onclick="togglePassword('confirm-password', this)"
-                            ></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label class="flex items-center">
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            class="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                            required
-                        />
-                        <span class="ml-2 text-sm text-gray-700">
-                            I agree to the
-                            <a href="#" class="text-indigo-600 hover:text-indigo-800">Terms of Service</a> and
-                            <a href="#" class="text-indigo-600 hover:text-indigo-800">Privacy Policy</a>
-                        </span>
-                    </label>
-                </div>
-
-                <button
-                    type="submit"
-                    class="btn-primary w-full text-white py-2 px-4 rounded-lg font-medium mb-4"
-                >
-                    Create Account
-                </button>
-
+            <!-- Register Form (Hidden by default) -->
+            <div id="signupForm" class="hidden space-y-6">
                 <div class="text-center">
-                    <p class="text-gray-600 text-sm">
-                        Already have an account?
-                        <a href="#" id="show-login" class="text-indigo-600 font-medium hover:text-indigo-800">Sign in</a>
-                    </p>
+                    <h2 class="text-3xl font-bold font-poppins text-gray-800">Create Account</h2>
+                    <p class="text-gray-600 mt-2">Join us to showcase your portfolio</p>
                 </div>
-            </form>
+
+                <form class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                            <input type="text" id="firstName" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                            <input type="text" id="lastName" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <div class="relative">
+                            <input type="email" id="signupEmail" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="you@example.com" required>
+                            <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="signupPassword" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="••••••••" required>
+                            <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
+                        </div>
+                        <div class="mt-1">
+                            <div id="passwordStrength" class="h-1 rounded-full bg-gray-200"></div>
+                            <p id="passwordHint" class="text-xs text-gray-500 mt-1"></p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword" 
+                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="••••••••" required>
+                            <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start">
+                        <input type="checkbox" id="terms" class="mt-1 form-checkbox text-amber-500" required>
+                        <label for="terms" class="ml-2 text-sm text-gray-600">
+                            I agree to the <a href="#" class="text-amber-600 hover:text-amber-700">Terms of Service</a> and 
+                            <a href="#" class="text-amber-600 hover:text-amber-700">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit" 
+                        class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg font-medium hover:scale-105 transition-transform">
+                        Create Account
+                    </button>
+                </form>
+
+                <p class="text-center text-sm text-gray-600">
+                    Already have an account? 
+                    <a href="#" id="showLogin" class="text-amber-600 hover:text-amber-700 font-medium">Sign in</a>
+                </p>
+            </div>
         </div>
     </div>
 
+    <script type="module" src="src/main.js"></script>
     <script>
-        // Simulated database
-        const userDatabase = JSON.parse(localStorage.getItem('userDatabase')) || [];
-
-        // DOM elements
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        const showRegister = document.getElementById('show-register');
-        const showLogin = document.getElementById('show-login');
-        const loginFormSubmit = document.getElementById('loginForm');
-        const registerFormSubmit = document.getElementById('registerForm');
-        const loginError = document.getElementById('login-error');
-        const loginSuccess = document.getElementById('login-success');
-        const registerError = document.getElementById('register-error');
-        const registerSuccess = document.getElementById('register-success');
-        const registerPassword = document.getElementById('register-password');
-        const passwordStrength = document.getElementById('password-strength');
-        const strengthText = document.getElementById('strength-text');
-        const strengthMeter = document.getElementById('strength-meter');
-
-        // Toggle between login and register forms
-        showRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginForm.classList.add('hidden');
-            registerForm.classList.remove('hidden');
-            clearMessages();
-        });
-
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerForm.classList.add('hidden');
-            loginForm.classList.remove('hidden');
-            clearMessages();
-        });
-
         // Toggle password visibility
-        function togglePassword(inputId, icon) {
-            const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // Clear all messages
-        function clearMessages() {
-            loginError.classList.add('hidden');
-            loginSuccess.classList.add('hidden');
-            registerError.classList.add('hidden');
-            registerSuccess.classList.add('hidden');
-        }
-
-        // Password strength checker
-        registerPassword.addEventListener('input', () => {
-            const password = registerPassword.value;
-
-            if (password.length === 0) {
-                passwordStrength.classList.add('hidden');
-                return;
-            }
-
-            passwordStrength.classList.remove('hidden');
-
-            // Calculate strength
-            let strength = 0;
-            if (password.length >= 8) strength += 1;
-            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1;
-            if (password.match(/\d/)) strength += 1;
-            if (password.match(/[^a-zA-Z\d]/)) strength += 1;
-
-            // Update UI
-            let strengthColor = 'text-red-500';
-            let strengthLabel = 'Weak';
-
-            if (strength >= 3) {
-                strengthColor = 'text-yellow-500';
-                strengthLabel = 'Medium';
-            }
-            if (strength >= 4) {
-                strengthColor = 'text-green-500';
-                strengthLabel = 'Strong';
-            }
-
-            strengthText.textContent = strengthLabel;
-            strengthText.className = strengthColor;
-
-            // Create meter
-            strengthMeter.innerHTML = '';
-            for (let i = 0; i < strength; i++) {
-                const bar = document.createElement('span');
-                bar.className = `inline-block h-1 w-3 mx-px ${strengthColor}`;
-                bar.style.backgroundColor = 'currentColor';
-                strengthMeter.appendChild(bar);
-            }
+        document.querySelectorAll('.toggle-password').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
         });
 
-        // Form validation
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        function validatePassword(password) {
-            return password.length >= 8;
-        }
-
-        // Login form submission
-        loginFormSubmit.addEventListener('submit', async (e) => {
+        // Toggle between login and signup forms
+        document.getElementById('showSignup').addEventListener('click', (e) => {
             e.preventDefault();
-            clearMessages();
-
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            // Validate inputs
-            if (!validateEmail(email)) {
-                loginError.textContent = 'Please enter a valid email address';
-                loginError.classList.remove('hidden');
-                return;
-            }
-
-            if (!validatePassword(password)) {
-                loginError.textContent = 'Password must be at least 8 characters';
-                loginError.classList.remove('hidden');
-                return;
-            }
-
-            // Check if user exists
-            const user = userDatabase.find((u) => u.email === email);
-
-            if (!user) {
-                loginError.textContent = 'No account found with this email';
-                loginError.classList.remove('hidden');
-                return;
-            }
-
-            // Compare password with hashed password
-            const isPasswordValid = await bcrypt.compare(password, user.password);
-            if (!isPasswordValid) {
-                loginError.textContent = 'Incorrect password';
-                loginError.classList.remove('hidden');
-                return;
-            }
-
-            // Successful login
-            loginSuccess.textContent = `Welcome back, ${user.firstName}! Redirecting...`;
-            loginSuccess.classList.remove('hidden');
-            loginSuccess.classList.add('success-message');
-
-            // Store login state
-            localStorage.setItem('loggedInUser', JSON.stringify(user));
-
-            // Simulate redirect
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
         });
 
-        // Register form submission
-        registerFormSubmit.addEventListener('submit', async (e) => {
+        document.getElementById('showLogin').addEventListener('click', (e) => {
             e.preventDefault();
-            clearMessages();
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        });
 
-            const firstName = document.getElementById('first-name').value;
-            const lastName = document.getElementById('last-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const terms = document.getElementById('terms').checked;
-
-            // Validate inputs
-            if (!firstName || !lastName) {
-                registerError.textContent = 'Please enter your full name';
-                registerError.classList.remove('hidden');
-                return;
-            }
-
-            if (!validateEmail(email)) {
-                registerError.textContent = 'Please enter a valid email address';
-                registerError.classList.remove('hidden');
-                return;
-            }
-
-            if (!validatePassword(password)) {
-                registerError.textContent = 'Password must be at least 8 characters';
-                registerError.classList.remove('hidden');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                registerError.textContent = 'Passwords do not match';
-                registerError.classList.remove('hidden');
-                return;
-            }
-
-            if (!terms) {
-                registerError.textContent = 'You must agree to the terms and conditions';
-                registerError.classList.remove('hidden');
-                return;
-            }
-
-            // Check if email already exists
-            const userExists = userDatabase.some((u) => u.email === email);
-
-            if (userExists) {
-                registerError.textContent = 'An account with this email already exists';
-                registerError.classList.remove('hidden');
-                return;
-            }
-
-            // Hash password before saving
-            const hashedPassword = await bcrypt.hash(password, 10);
-
-            // Create new user
-            const newUser = {
-                firstName,
-                lastName,
-                email,
-                password: hashedPassword,
+        // Password strength indicator
+        document.getElementById('signupPassword').addEventListener('input', function() {
+            const password = this.value;
+            const strength = {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[^A-Za-z0-9]/.test(password)
             };
 
-            // Add to simulated database
-            userDatabase.push(newUser);
-            localStorage.setItem('userDatabase', JSON.stringify(userDatabase));
+            const strengthBar = document.getElementById('passwordStrength');
+            const hint = document.getElementById('passwordHint');
+            
+            const score = Object.values(strength).filter(Boolean).length;
+            
+            const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
+            const messages = ['Weak', 'Fair', 'Good', 'Strong'];
+            
+            strengthBar.className = `h-1 rounded-full transition-all duration-300 ${colors[score - 1] || 'bg-gray-200'}`;
+            strengthBar.style.width = `${(score / 5) * 100}%`;
+            hint.textContent = score > 0 ? messages[score - 1] : 'Use 8+ characters with a mix of letters, numbers & symbols';
+        });
 
-            // Successful registration
-            registerSuccess.textContent = 'Account created successfully! Redirecting to login...';
-            registerSuccess.classList.remove('hidden');
-            registerSuccess.classList.add('success-message');
-
-            // Clear form
-            registerFormSubmit.reset();
-            passwordStrength.classList.add('hidden');
-
-            // Simulate redirect
+        // Hide loading spinner after content loads
+        window.addEventListener('load', () => {
+            document.getElementById('loading').classList.add('opacity-0');
             setTimeout(() => {
-                registerForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                registerSuccess.classList.add('hidden');
-
-                // Auto-fill login form
-                document.getElementById('login-email').value = email;
-                document.getElementById('login-password').value = '';
-            }, 2000);
+                document.getElementById('loading').style.display = 'none';
+            }, 500);
         });
     </script>
 </body>
