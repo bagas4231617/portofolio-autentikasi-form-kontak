@@ -45,7 +45,7 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toast" class="fixed top-4 right-4 z-50 animate__animated hidden"></div>
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 animate__animated"></div>
 
     <div class="w-full max-w-md">
         <div class="auth-card rounded-2xl p-8 animate__animated animate__fadeIn">
@@ -56,11 +56,11 @@
                     <p class="text-gray-600 mt-2">Sign in to continue to portfolio</p>
                 </div>
 
-                <form class="space-y-4">
+                <form id="loginFormElement" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <div class="relative">
-                            <input type="email" id="loginEmail" 
+                            <input type="email" name="email" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="you@example.com" required>
                             <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
@@ -70,7 +70,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <div class="relative">
-                            <input type="password" id="loginPassword" 
+                            <input type="password" name="password" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="••••••••" required>
                             <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
@@ -101,13 +101,13 @@
                 </div>
 
                 <div class="grid grid-cols-3 gap-4">
-                    <button class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <button id="googleLogin" class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                     </button>
-                    <button class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <button id="facebookLogin" class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                         <i class="fab fa-facebook text-blue-600 text-xl"></i>
                     </button>
-                    <button class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <button id="twitterLogin" class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                         <i class="fab fa-twitter text-blue-400 text-xl"></i>
                     </button>
                 </div>
@@ -119,23 +119,23 @@
             </div>
 
             <!-- Register Form (Hidden by default) -->
-            <div id="signupForm" class="hidden space-y-6">
+            <div id="registerForm" class="hidden space-y-6">
                 <div class="text-center">
                     <h2 class="text-3xl font-bold font-poppins text-gray-800">Create Account</h2>
                     <p class="text-gray-600 mt-2">Join us to showcase your portfolio</p>
                 </div>
 
-                <form class="space-y-4">
+                <form id="registerFormElement" class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                            <input type="text" id="firstName" 
+                            <input type="text" name="firstName" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                            <input type="text" id="lastName" 
+                            <input type="text" name="lastName" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 required>
                         </div>
@@ -144,7 +144,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <div class="relative">
-                            <input type="email" id="signupEmail" 
+                            <input type="email" name="email" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="you@example.com" required>
                             <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
@@ -154,7 +154,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <div class="relative">
-                            <input type="password" id="signupPassword" 
+                            <input type="password" name="password" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="••••••••" required>
                             <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
@@ -168,7 +168,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                         <div class="relative">
-                            <input type="password" id="confirmPassword" 
+                            <input type="password" name="confirmPassword" 
                                 class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="••••••••" required>
                             <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
@@ -208,43 +208,6 @@
                 this.classList.toggle('fa-eye');
                 this.classList.toggle('fa-eye-slash');
             });
-        });
-
-        // Toggle between login and signup forms
-        document.getElementById('showSignup').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('signupForm').classList.remove('hidden');
-        });
-
-        document.getElementById('showLogin').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('signupForm').classList.add('hidden');
-            document.getElementById('loginForm').classList.remove('hidden');
-        });
-
-        // Password strength indicator
-        document.getElementById('signupPassword').addEventListener('input', function() {
-            const password = this.value;
-            const strength = {
-                length: password.length >= 8,
-                lowercase: /[a-z]/.test(password),
-                uppercase: /[A-Z]/.test(password),
-                number: /[0-9]/.test(password),
-                special: /[^A-Za-z0-9]/.test(password)
-            };
-
-            const strengthBar = document.getElementById('passwordStrength');
-            const hint = document.getElementById('passwordHint');
-            
-            const score = Object.values(strength).filter(Boolean).length;
-            
-            const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-green-500'];
-            const messages = ['Weak', 'Fair', 'Good', 'Strong'];
-            
-            strengthBar.className = `h-1 rounded-full transition-all duration-300 ${colors[score - 1] || 'bg-gray-200'}`;
-            strengthBar.style.width = `${(score / 5) * 100}%`;
-            hint.textContent = score > 0 ? messages[score - 1] : 'Use 8+ characters with a mix of letters, numbers & symbols';
         });
 
         // Hide loading spinner after content loads

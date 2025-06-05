@@ -33,24 +33,11 @@ const googleProvider = new GoogleAuthProvider();
 const facebookProvider = new FacebookAuthProvider();
 const twitterProvider = new TwitterAuthProvider();
 
-// DOM Elements
-const navbar = document.getElementById('navbar');
-const userDisplayName = document.getElementById('userDisplayName');
-const authContainer = document.getElementById('authContainer');
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
-const loginFormElement = document.getElementById('loginFormElement');
-const registerFormElement = document.getElementById('registerFormElement');
-const showSignupBtn = document.getElementById('showSignup');
-const showLoginBtn = document.getElementById('showLogin');
-const googleLoginBtn = document.getElementById('googleLogin');
-const facebookLoginBtn = document.getElementById('facebookLogin');
-const twitterLoginBtn = document.getElementById('twitterLogin');
-const switchAccountBtn = document.getElementById('switchAccount');
-const logoutBtn = document.getElementById('logoutBtn');
-
 // Enhanced Toast notification function
 function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) return;
+
     const toast = document.createElement('div');
     toast.className = `p-4 rounded-lg shadow-lg text-white mb-4 transform transition-all duration-300 translate-y-full ${
         type === 'success' ? 'bg-green-500' : 'bg-red-500'
@@ -65,7 +52,6 @@ function showToast(message, type = 'success') {
         </div>
     `;
 
-    const toastContainer = document.getElementById('toastContainer');
     toastContainer.appendChild(toast);
 
     // Animate in
@@ -77,27 +63,48 @@ function showToast(message, type = 'success') {
     setTimeout(() => {
         toast.classList.add('translate-y-full');
         toast.addEventListener('transitionend', () => {
-            toastContainer.removeChild(toast);
+            if (toastContainer.contains(toast)) {
+                toastContainer.removeChild(toast);
+            }
         });
     }, 3000);
 }
 
 // Enhanced Auth state observer
 onAuthStateChanged(auth, (user) => {
+    const navbar = document.getElementById('navbar');
+    const authContainer = document.getElementById('authContainer');
+    const userDisplayName = document.getElementById('userDisplayName');
+
     if (user) {
         // User is signed in
-        userDisplayName.textContent = user.displayName || user.email.split('@')[0];
-        navbar.classList.remove('hidden');
-        authContainer.classList.add('hidden');
+        if (userDisplayName) {
+            userDisplayName.textContent = user.displayName || user.email.split('@')[0];
+        }
+        if (navbar) {
+            navbar.classList.remove('hidden');
+        }
+        if (authContainer) {
+            authContainer.classList.add('hidden');
+        }
         
         // Store auth state and user info
-        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('loggedInUser', 'true');
         localStorage.setItem('userEmail', user.email);
+
+        // Redirect to index.html if on auth page
+        if (window.location.pathname.includes('auth.html')) {
+            window.location.href = '/';
+        }
     } else {
         // User is signed out
-        navbar.classList.add('hidden');
-        authContainer.classList.remove('hidden');
-        localStorage.removeItem('isLoggedIn');
+        if (navbar) {
+            navbar.classList.add('hidden');
+        }
+        if (authContainer) {
+            authContainer.classList.remove('hidden');
+        }
+        localStorage.removeItem('loggedInUser');
         localStorage.removeItem('userEmail');
     }
 });
@@ -113,45 +120,73 @@ function validateForm(email, password) {
     }
 }
 
-// Enhanced Email/Password Login
-loginFormElement.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = e.target.email.value.trim();
-    const password = e.target.password.value;
+// Form toggle functionality
+const showSignupBtn = document.getElementById('showSignup');
+const showLoginBtn = document.getElementById('showLogin');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
 
-    try {
-        validateForm(email, password);
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        showToast(`Welcome back, ${userCredential.user.email.split('@')[0]}!`);
-    } catch (error) {
-        showToast(error.message, 'error');
-    }
-});
+if (showSignupBtn && showLoginBtn && loginForm && registerForm) {
+    showSignupBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+    });
 
-// Enhanced Email/Password Registration
-registerFormElement.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = e.target.email.value.trim();
-    const password = e.target.password.value;
-    const firstName = e.target.firstName.value.trim();
-    const lastName = e.target.lastName.value.trim();
-
-    try {
-        validateForm(email, password);
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // Update profile with full name
-        await updateProfile(userCredential.user, {
-            displayName: `${firstName} ${lastName}`
-        });
-
-        showToast('Account created successfully!');
+    showLoginBtn.addEventListener('click', (e) => {
+        e.preventDefault();
         registerForm.classList.add('hidden');
         loginForm.classList.remove('hidden');
-    } catch (error) {
-        showToast(error.message, 'error');
-    }
-});
+    });
+}
+
+// Enhanced Email/Password Login
+const loginFormElement = document.getElementById('loginFormElement');
+if (loginFormElement) {
+    loginFormElement.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = e.target.email.value.trim();
+        const password = e.target.password.value;
+
+        try {
+            validateForm(email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            showToast(`Welcome back, ${userCredential.user.email.split('@')[0]}!`);
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    });
+}
+
+// Enhanced Email/Password Registration
+const registerFormElement = document.getElementById('registerFormElement');
+if (registerFormElement) {
+    registerFormElement.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = e.target.email.value.trim();
+        const password = e.target.password.value;
+        const firstName = e.target.firstName.value.trim();
+        const lastName = e.target.lastName.value.trim();
+
+        try {
+            validateForm(email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            
+            // Update profile with full name
+            await updateProfile(userCredential.user, {
+                displayName: `${firstName} ${lastName}`
+            });
+
+            showToast('Account created successfully!');
+            if (registerForm && loginForm) {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            }
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    });
+}
 
 // Enhanced Social Login Handlers
 async function handleSocialLogin(provider, providerName) {
@@ -169,31 +204,50 @@ async function handleSocialLogin(provider, providerName) {
     }
 }
 
-googleLoginBtn.addEventListener('click', () => handleSocialLogin(googleProvider, 'Google'));
-facebookLoginBtn.addEventListener('click', () => handleSocialLogin(facebookProvider, 'Facebook'));
-twitterLoginBtn.addEventListener('click', () => handleSocialLogin(twitterProvider, 'Twitter'));
+// Social login button handlers
+const googleLoginBtn = document.getElementById('googleLogin');
+const facebookLoginBtn = document.getElementById('facebookLogin');
+const twitterLoginBtn = document.getElementById('twitterLogin');
+
+if (googleLoginBtn) {
+    googleLoginBtn.addEventListener('click', () => handleSocialLogin(googleProvider, 'Google'));
+}
+if (facebookLoginBtn) {
+    facebookLoginBtn.addEventListener('click', () => handleSocialLogin(facebookProvider, 'Facebook'));
+}
+if (twitterLoginBtn) {
+    twitterLoginBtn.addEventListener('click', () => handleSocialLogin(twitterProvider, 'Twitter'));
+}
 
 // Enhanced Logout Handler
-logoutBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-        showToast('Successfully logged out!');
-    } catch (error) {
-        showToast(error.message, 'error');
-    }
-});
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            showToast('Successfully logged out!');
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    });
+}
 
 // Enhanced Switch Account Handler
-switchAccountBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-        showToast('Please sign in with another account');
-    } catch (error) {
-        showToast(error.message, 'error');
-    }
-});
+const switchAccountBtn = document.getElementById('switchAccount');
+if (switchAccountBtn) {
+    switchAccountBtn.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            if (loginForm && registerForm) {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            }
+            showToast('Please sign in with another account');
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    });
+}
 
 // Password Reset Function
 window.requestPasswordReset = async (email) => {
