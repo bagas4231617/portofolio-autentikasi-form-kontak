@@ -36,6 +36,35 @@
         .social-btn:hover {
             transform: scale(1.05);
         }
+        .password-strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        .password-strength-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        .btn-loading {
+            position: relative;
+        }
+        .btn-loading:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
@@ -45,25 +74,28 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-4 right-4 z-50 animate__animated"></div>
+    <div id="toastContainer" class="fixed top-4 right-4 z-50"></div>
 
     <div class="w-full max-w-md">
         <div class="auth-card rounded-2xl p-8 animate__animated animate__fadeIn">
             <!-- Login Form -->
             <div id="loginForm" class="space-y-6">
                 <div class="text-center">
+                    <div class="mx-auto w-16 h-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
                     <h2 class="text-3xl font-bold font-poppins text-gray-800">Welcome Back</h2>
-                    <p class="text-gray-600 mt-2">Sign in to continue to portfolio</p>
+                    <p class="text-gray-600 mt-2">Sign in to continue to your portfolio</p>
                 </div>
 
                 <form id="loginFormElement" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                         <div class="relative">
                             <input type="email" name="email" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                class="input-field w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="you@example.com" required>
-                            <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
+                            <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
                         </div>
                     </div>
 
@@ -71,23 +103,26 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <div class="relative">
                             <input type="password" name="password" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                                placeholder="••••••••" required>
-                            <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
+                                class="input-field w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="Enter your password" required>
+                            <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                            <i class="fas fa-eye toggle-password absolute right-3 top-3.5 text-gray-400 cursor-pointer hover:text-gray-600"></i>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-between">
                         <label class="flex items-center">
-                            <input type="checkbox" class="form-checkbox text-amber-500">
+                            <input type="checkbox" name="remember" class="form-checkbox text-amber-500 rounded">
                             <span class="ml-2 text-sm text-gray-600">Remember me</span>
                         </label>
-                        <a href="#" class="text-sm text-amber-600 hover:text-amber-700">Forgot password?</a>
+                        <button type="button" id="forgotPassword" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                            Forgot password?
+                        </button>
                     </div>
 
                     <button type="submit" 
-                        class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg font-medium hover:scale-105 transition-transform">
-                        Sign In
+                        class="btn-loading w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-lg font-medium hover:scale-105 transition-transform disabled:transform-none">
+                        <span class="btn-text">Sign In</span>
                     </button>
                 </form>
 
@@ -96,33 +131,38 @@
                         <div class="w-full border-t border-gray-300"></div>
                     </div>
                     <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                        <span class="px-4 bg-white text-gray-500">Or continue with</span>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-4">
-                    <button id="googleLogin" class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <button id="googleLogin" class="social-btn flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                     </button>
-                    <button id="facebookLogin" class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <button id="facebookLogin" class="social-btn flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400">
                         <i class="fab fa-facebook text-blue-600 text-xl"></i>
                     </button>
-                    <button id="twitterLogin" class="social-btn flex items-center justify-center p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <button id="twitterLogin" class="social-btn flex items-center justify-center p-3 border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400">
                         <i class="fab fa-twitter text-blue-400 text-xl"></i>
                     </button>
                 </div>
 
                 <p class="text-center text-sm text-gray-600">
                     Don't have an account? 
-                    <a href="#" id="showSignup" class="text-amber-600 hover:text-amber-700 font-medium">Sign up</a>
+                    <button type="button" id="showSignup" class="text-amber-600 hover:text-amber-700 font-medium">
+                        Create one now
+                    </button>
                 </p>
             </div>
 
             <!-- Register Form (Hidden by default) -->
             <div id="registerForm" class="hidden space-y-6">
                 <div class="text-center">
+                    <div class="mx-auto w-16 h-16 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-user-plus text-white text-2xl"></i>
+                    </div>
                     <h2 class="text-3xl font-bold font-poppins text-gray-800">Create Account</h2>
-                    <p class="text-gray-600 mt-2">Join us to showcase your portfolio</p>
+                    <p class="text-gray-600 mt-2">Join us to showcase your amazing portfolio</p>
                 </div>
 
                 <form id="registerFormElement" class="space-y-4">
@@ -130,24 +170,24 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                             <input type="text" name="firstName" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                                required>
+                                class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="John" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                             <input type="text" name="lastName" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                                required>
+                                class="input-field w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="Doe" required>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                         <div class="relative">
                             <input type="email" name="email" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
+                                class="input-field w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none"
                                 placeholder="you@example.com" required>
-                            <i class="fas fa-envelope absolute right-3 top-3 text-gray-400"></i>
+                            <i class="fas fa-envelope absolute left-3 top-3.5 text-gray-400"></i>
                         </div>
                     </div>
 
@@ -155,13 +195,16 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <div class="relative">
                             <input type="password" name="password" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                                placeholder="••••••••" required>
-                            <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
+                                class="input-field w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="Create a strong password" required>
+                            <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                            <i class="fas fa-eye toggle-password absolute right-3 top-3.5 text-gray-400 cursor-pointer hover:text-gray-600"></i>
                         </div>
-                        <div class="mt-1">
-                            <div id="passwordStrength" class="h-1 rounded-full bg-gray-200"></div>
-                            <p id="passwordHint" class="text-xs text-gray-500 mt-1"></p>
+                        <div class="mt-2">
+                            <div class="password-strength-bar">
+                                <div id="passwordStrength" class="password-strength-fill w-0"></div>
+                            </div>
+                            <p id="passwordHint" class="text-xs text-gray-500 mt-1">Password strength will be shown here</p>
                         </div>
                     </div>
 
@@ -169,52 +212,148 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
                         <div class="relative">
                             <input type="password" name="confirmPassword" 
-                                class="input-field w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
-                                placeholder="••••••••" required>
-                            <i class="fas fa-eye toggle-password absolute right-3 top-3 text-gray-400 cursor-pointer"></i>
+                                class="input-field w-full px-4 py-3 pl-10 pr-10 border border-gray-300 rounded-lg focus:outline-none"
+                                placeholder="Confirm your password" required>
+                            <i class="fas fa-lock absolute left-3 top-3.5 text-gray-400"></i>
+                            <i class="fas fa-eye toggle-password absolute right-3 top-3.5 text-gray-400 cursor-pointer hover:text-gray-600"></i>
                         </div>
                     </div>
 
                     <div class="flex items-start">
-                        <input type="checkbox" id="terms" class="mt-1 form-checkbox text-amber-500" required>
+                        <input type="checkbox" id="terms" name="terms" class="mt-1 form-checkbox text-amber-500 rounded" required>
                         <label for="terms" class="ml-2 text-sm text-gray-600">
-                            I agree to the <a href="#" class="text-amber-600 hover:text-amber-700">Terms of Service</a> and 
-                            <a href="#" class="text-amber-600 hover:text-amber-700">Privacy Policy</a>
+                            I agree to the 
+                            <a href="#" class="text-amber-600 hover:text-amber-700 font-medium">Terms of Service</a> 
+                            and 
+                            <a href="#" class="text-amber-600 hover:text-amber-700 font-medium">Privacy Policy</a>
                         </label>
                     </div>
 
                     <button type="submit" 
-                        class="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 rounded-lg font-medium hover:scale-105 transition-transform">
-                        Create Account
+                        class="btn-loading w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-3 rounded-lg font-medium hover:scale-105 transition-transform disabled:transform-none">
+                        <span class="btn-text">Create Account</span>
                     </button>
                 </form>
 
                 <p class="text-center text-sm text-gray-600">
                     Already have an account? 
-                    <a href="#" id="showLogin" class="text-amber-600 hover:text-amber-700 font-medium">Sign in</a>
+                    <button type="button" id="showLogin" class="text-amber-600 hover:text-amber-700 font-medium">
+                        Sign in here
+                    </button>
                 </p>
+            </div>
+
+            <!-- Forgot Password Modal -->
+            <div id="forgotPasswordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                    <h3 class="text-lg font-semibold mb-4">Reset Password</h3>
+                    <p class="text-gray-600 mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                    <form id="forgotPasswordForm">
+                        <div class="mb-4">
+                            <input type="email" name="resetEmail" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                                placeholder="Enter your email" required>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button type="button" id="cancelReset" 
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                class="flex-1 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+                                Send Reset Link
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="module" src="src/main.js"></script>
     <script>
-        // Toggle password visibility
-        document.querySelectorAll('.toggle-password').forEach(toggle => {
-            toggle.addEventListener('click', function() {
-                const input = this.previousElementSibling;
-                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                input.setAttribute('type', type);
-                this.classList.toggle('fa-eye');
-                this.classList.toggle('fa-eye-slash');
-            });
+        // Enhanced button loading states
+        function setButtonLoading(button, loading) {
+            const btnText = button.querySelector('.btn-text');
+            if (loading) {
+                button.disabled = true;
+                btnText.innerHTML = '<span class="spinner mr-2"></span>Loading...';
+            } else {
+                button.disabled = false;
+                btnText.textContent = button.id.includes('login') ? 'Sign In' : 'Create Account';
+            }
+        }
+
+        // Enhanced form submission with loading states
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('loginFormElement');
+            const registerForm = document.getElementById('registerFormElement');
+            const forgotPasswordBtn = document.getElementById('forgotPassword');
+            const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+            const cancelResetBtn = document.getElementById('cancelReset');
+            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+
+            // Add loading states to form submissions
+            if (loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    const submitBtn = loginForm.querySelector('button[type="submit"]');
+                    setButtonLoading(submitBtn, true);
+                    
+                    // Reset loading state after a delay (will be handled by auth success/error)
+                    setTimeout(() => setButtonLoading(submitBtn, false), 3000);
+                });
+            }
+
+            if (registerForm) {
+                registerForm.addEventListener('submit', (e) => {
+                    const submitBtn = registerForm.querySelector('button[type="submit"]');
+                    setButtonLoading(submitBtn, true);
+                    
+                    // Reset loading state after a delay (will be handled by auth success/error)
+                    setTimeout(() => setButtonLoading(submitBtn, false), 3000);
+                });
+            }
+
+            // Forgot password modal
+            if (forgotPasswordBtn && forgotPasswordModal) {
+                forgotPasswordBtn.addEventListener('click', () => {
+                    forgotPasswordModal.classList.remove('hidden');
+                });
+
+                cancelResetBtn.addEventListener('click', () => {
+                    forgotPasswordModal.classList.add('hidden');
+                });
+
+                // Close modal when clicking outside
+                forgotPasswordModal.addEventListener('click', (e) => {
+                    if (e.target === forgotPasswordModal) {
+                        forgotPasswordModal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Handle forgot password form
+            if (forgotPasswordForm) {
+                forgotPasswordForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = e.target.resetEmail.value;
+                    
+                    // This will be handled by the auth module
+                    if (window.authManager) {
+                        await window.authManager.requestPasswordReset(email);
+                        forgotPasswordModal.classList.add('hidden');
+                        e.target.reset();
+                    }
+                });
+            }
         });
 
         // Hide loading spinner after content loads
         window.addEventListener('load', () => {
-            document.getElementById('loading').classList.add('opacity-0');
+            const loading = document.getElementById('loading');
+            loading.classList.add('opacity-0');
             setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
+                loading.style.display = 'none';
             }, 500);
         });
     </script>
